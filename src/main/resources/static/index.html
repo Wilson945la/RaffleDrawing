@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>草花互动 - 幸运抽奖</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="bg-watermark">草花互动</div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <img src="/images/logo.png" alt="草花互动" class="logo">
+            <h1 class="title">幸运抽奖</h1>
+        </header>
+
+        <!-- Login Page -->
+        <div id="auth-page" class="page">
+            <div class="auth-card">
+                <form id="login-form" class="auth-form">
+                    <!-- Account ID (auto-generated) -->
+                    <div class="form-group">
+                        <label>账号 ID</label>
+                        <div class="id-row">
+                            <div class="id-display" id="account-id-display">chfz-加载中...</div>
+                            <button type="button" class="btn-copy" id="btn-copy-id" title="复制账号ID">📋 复制</button>
+                        </div>
+                        <div class="fangni-tip">
+                            <img src="images/robot.png" alt="方尼" class="fangni-robot">
+                            方尼提示：这是您的账号请好好复制保存，忘记了就要开新的帐号了~
+                        </div>
+                    </div>
+
+                    <!-- Existing account input -->
+                    <div class="form-group">
+                        <input type="text" name="existingId" id="existing-id"
+                               placeholder="已有账号，请输入！"
+                               class="input-existing-id">
+                    </div>
+
+                    <!-- Username (optional) -->
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" name="realName" placeholder="（选填）" class="input-name">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">登录</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- User Raffle Page -->
+        <div id="user-page" class="page hidden">
+            <div class="user-info">
+                <span id="user-name"></span>
+                <button id="logout-btn" class="btn btn-small">退出</button>
+            </div>
+
+            <!-- Event Selection Screen -->
+            <div id="event-select-screen">
+                <h3 class="section-title">
+                    <span class="title-icon">🎯</span>
+                    进行中的抽奖活动
+                </h3>
+                <div id="running-events-list" class="running-events-list">
+                    <div style="text-align:center;color:var(--text-light);padding:20px;">加载中...</div>
+                </div>
+                <div id="no-events-msg" class="empty-state hidden">
+                    <div class="empty-icon">📅</div>
+                    <div class="empty-title">暂无抽奖活动</div>
+                    <div class="empty-desc">请关注活动开始时间，准时参与抽奖</div>
+                </div>
+            </div>
+
+            <!-- Event Raffle Screen -->
+            <div id="event-raffle-screen" class="hidden">
+                <button id="back-to-events-btn" class="btn-back">← 返回活动列表</button>
+
+                <div id="raffle-section" class="raffle-section">
+                    <div class="raffle-status">
+                        <div class="status-badge running" id="status-badge">抽奖进行中</div>
+                        <div class="event-title" id="event-title-display"></div>
+                        <div class="event-time" id="event-time"></div>
+                    </div>
+
+                    <div class="draw-count-info" id="draw-count-info">
+                        剩余抽奖次数：<strong id="user-draw-count">0</strong>
+                    </div>
+                    
+                    <div class="raffle-machine">
+                        <div class="machine-ring">
+                            <div class="machine-center">
+                                <button id="draw-btn" class="draw-btn">
+                                    <span class="draw-text">立即<br>抽奖</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="draw-result" class="draw-result hidden">
+                        <div class="result-card">
+                            <div class="result-icon">🎉</div>
+                            <div class="result-title">恭喜中奖！</div>
+                            <div class="result-prize" id="result-prize-name"></div>
+                            <img id="result-prize-img" class="result-prize-img" src="" alt="">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Prizes -->
+                <div class="event-prizes-section">
+                    <h3 class="section-title">
+                        <span class="title-icon">🎁</span>
+                        活动奖品
+                    </h3>
+                    <div id="event-prizes-grid" class="prizes-grid">
+                        <div style="text-align:center;color:var(--text-light);padding:10px;">加载中...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Winners List -->
+            <div class="winners-section">
+                <h3 class="section-title">
+                    <span class="title-icon">🏆</span>
+                    中奖名单
+                </h3>
+                <div id="winners-list" class="winners-list">
+                    <div class="empty-winners">暂无中奖记录</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Page -->
+        <div id="admin-page" class="page hidden">
+            <div class="user-info">
+                <span id="admin-name"></span>
+                <span class="admin-badge">管理员</span>
+                <button id="admin-logout-btn" class="btn btn-small">退出</button>
+            </div>
+
+            <div class="admin-nav">
+                <button class="admin-nav-btn active" data-panel="users">用户管理</button>
+                <button class="admin-nav-btn" data-panel="results">中奖记录</button>
+                <button class="admin-nav-btn" data-panel="prizes">奖品管理</button>
+                <button class="admin-nav-btn" data-panel="event">活动设置</button>
+            </div>
+
+            <!-- User Management -->
+            <div id="panel-users" class="admin-panel">
+                <div class="search-box">
+                    <input type="text" id="user-search" placeholder="搜索用户（账号ID或用户名）..." class="search-input">
+                </div>
+                <div id="user-list" class="user-list"></div>
+            </div>
+
+            <!-- Results -->
+            <div id="panel-results" class="admin-panel hidden">
+                <div class="search-box">
+                    <input type="text" id="result-search" placeholder="搜索中奖记录（用户名或奖品名）..." class="search-input">
+                </div>
+                <div id="admin-results-list" class="results-list"></div>
+            </div>
+
+            <!-- Prize Management -->
+            <div id="panel-prizes" class="admin-panel hidden">
+                <button id="add-prize-btn" class="btn btn-primary">+ 添加奖品</button>
+                <div id="prize-list" class="prize-list"></div>
+            </div>
+
+            <!-- Event Settings -->
+            <div id="panel-event" class="admin-panel hidden">
+                <button id="add-event-btn" class="btn btn-primary">+ 新建活动</button>
+                <div id="event-list" class="event-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Prize Modal -->
+    <div id="prize-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">添加奖品</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="prize-form">
+                <input type="hidden" id="prize-id">
+                <div class="form-group">
+                    <label>奖品名称</label>
+                    <input type="text" id="prize-name" required>
+                </div>
+                <div class="form-group">
+                    <label>奖品说明</label>
+                    <textarea id="prize-desc" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>奖品图片</label>
+                    <input type="file" id="prize-image" accept="image/*">
+                    <div id="prize-image-preview" class="image-preview"></div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">保存</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Result Modal -->
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑中奖记录</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="result-form">
+                <input type="hidden" id="edit-result-id">
+                <div class="form-group">
+                    <label>中奖用户</label>
+                    <select id="edit-result-user" required>
+                        <option value="">请选择用户</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>中奖奖品</label>
+                    <select id="edit-result-prize" required>
+                        <option value="">请选择奖品</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>中奖时间</label>
+                    <input type="datetime-local" id="edit-result-time">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">保存修改</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Event Create/Edit Modal -->
+    <div id="event-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-event">
+            <div class="modal-header">
+                <h3 id="event-modal-title">新建活动</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="event-form">
+                <input type="hidden" id="event-id">
+                <div class="form-group">
+                    <label>活动标题</label>
+                    <input type="text" id="event-title" placeholder="例如：周年庆大抽奖" required>
+                </div>
+                <div class="form-group">
+                    <label>开始时间</label>
+                    <input type="datetime-local" id="event-start" required>
+                </div>
+                <div class="form-group">
+                    <label>结束时间</label>
+                    <input type="datetime-local" id="event-end" required>
+                </div>
+                <div class="form-group">
+                    <label>奖品配置</label>
+                    <div id="event-prizes-config" class="event-prizes-config"></div>
+                    <button type="button" id="add-event-prize-btn" class="btn btn-small" style="margin-top:8px;">+ 添加奖品</button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">保存活动</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
